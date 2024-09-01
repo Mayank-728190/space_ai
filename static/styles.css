@@ -1,0 +1,13 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin-top: 50px;
+}
+form {
+    display: inline-block;
+    text-align: left;
+}
+input[type="submit"] {
+    margin-top: 20px;
+    padding: 10px 20px;
+}

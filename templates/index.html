@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moon Landing Spot Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script>
+        function validateForm() {
+            var fileInput = document.getElementById('file').value;
+            var urlInput = document.getElementById('url').value;
+            if (fileInput === "" && urlInput === "") {
+                alert("Please upload an image or enter a URL.");
+                return false;
+            }
+            document.getElementById('loading').style.display = 'block';
+            return true;
+        }
+    </script>
+</head>
+<body>
+    <h1>Upload an Image or Provide a URL</h1>
+    <form action="/" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
+        <label for="file">Upload Image:</label>
+        <input type="file" name="file" id="file" accept="image/*"><br><br>
+        <label for="url">Or enter image URL:</label>
+        <input type="text" name="url" id="url" placeholder="http://..."><br><br>
+        <input type="submit" value="Analyze">
+    </form>
+
+    <div id="loading" style="display:none;">
+        <p>Processing your request, please wait...</p>
+    </div>
+</body>
+</html>

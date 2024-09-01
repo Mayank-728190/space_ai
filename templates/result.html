@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Landing Analysis Result</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        p {
+            font-size: 18px;
+        }
+        ul, ol {
+            text-align: left;
+            display: inline-block;
+            margin-top: 20px;
+        }
+        img {
+            margin-top: 20px;
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #ddd;
+        }
+        a {
+            display: block;
+            margin-top: 30px;
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+        }
+        a:hover {
+            color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Landing Analysis Result</h1>
+    <p>Estimated Altitude: {{ result.altitude }} meters</p>
+    <p>Required Thrust: {{ result.required_thrust }} N</p>
+    <h2>Active Thrusters</h2>
+    <ul>
+        <li>Front: {{ result.active_thrusters.front }} N</li>
+        <li>Back: {{ result.active_thrusters.back }} N</li>
+        <li>Left: {{ result.active_thrusters.left }} N</li>
+        <li>Right: {{ result.active_thrusters.right }} N</li>
+    </ul>
+    <h2>Best Landing Spots</h2>
+    <ol>
+        {% for score, (x, y) in result.best_spots %}
+            <li>Spot at ({{ x }}, {{ y }}) with score {{ score }}</li>
+        {% endfor %}
+    </ol>
+    <h2>Processed Image</h2>
+    {% if result.best_spots %}
+        <img src="{{ url_for('serve_image') }}" alt="Processed Image">
+    {% else %}
+        <p>No image was processed. Please <a href="/">try again</a>.</p>
+    {% endif %}
+    <a href="/">Analyze Another Image</a>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Result</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            margin-top: 20px;
+            border: 2px solid #ddd;
+        }
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+        }
+        a:hover {
+            color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Marked Landing Spots</h1>
+    {% if result %}
+        <p>Altitude: {{ result.altitude }} meters</p>
+        <p>Required Thrust: {{ result.required_thrust }} N</p>
+        <p>Active Thrusters:</p>
+        <ul>
+            {% for thruster, thrust in result.active_thrusters.items() %}
+                <li>{{ thruster }}: {{ thrust }} N</li>
+            {% endfor %}
+        </ul>
+        <img src="{{ url_for('static', filename='processed_image.png') }}" alt="Landing Spots">
+    {% else %}
+        <p>No image was processed. Please <a href="/">try again</a>.</p>
+    {% endif %}
+    <a href="/">Analyze Another Image</a>
+</body>
+</html>
