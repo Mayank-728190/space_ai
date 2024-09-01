@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, jsonify, send_file
+from flask import Flask, request, render_template, jsonify, send_file, abort
 import cv2
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
@@ -10,6 +10,9 @@ app = Flask(__name__)
 
 # Path to save the processed image
 PROCESSED_IMAGE_PATH = 'static/processed_image.png'
+
+# Ensure the static directory exists
+os.makedirs(os.path.dirname(PROCESSED_IMAGE_PATH), exist_ok=True)
 
 # Load and preprocess the image from file
 def load_image_from_file(file):
@@ -40,22 +43,20 @@ def load_image_from_url(url):
     image = cv2.resize(image, (512, 512))  # Resize for consistency
     return image
 
-# Estimate altitude from image (for simplicity, assume pixel intensity correlates with altitude)
+# Estimate altitude from image
 def estimate_altitude(image):
     mean_intensity = np.mean(image)
     altitude = mean_intensity * 100  # Simple linear mapping; adjust as needed
     return altitude
 
-# Calculate required thrust based on altitude and other factors
+# Calculate required thrust based on altitude
 def calculate_required_thrust(altitude, lander_mass=1000):  # Default mass is 1000kg
-    # Simple thrust calculation: T = mg + some buffer based on altitude
     gravity = 1.62  # Lunar gravity in m/s^2
     required_thrust = lander_mass * gravity * (1 + altitude / 1000)
     return required_thrust
 
 # Determine which thrusters should be on
 def determine_active_thrusters(required_thrust):
-    # Simple example: 4 thrusters, each providing a quarter of the required thrust
     thrusters = {
         "front": required_thrust / 4,
         "back": required_thrust / 4,
@@ -85,7 +86,6 @@ def find_best_spots(image, altitude):
             mean_brightness = np.mean(window)
             std_dev = np.std(window)
             
-            # Modify score based on altitude
             score = 1 / (std_dev + 1) * (1 - abs(mean_brightness - altitude / 100))
             heatmap[y:y + window_size, x:x + window_size] = score
             spots.append((score, (x, y)))
@@ -132,9 +132,8 @@ def index():
             preprocessed_image = preprocess_image(image)
             heatmap, best_spots = find_best_spots(preprocessed_image, altitude)
             marked_image = mark_spots_on_image(image, best_spots, altitude)
-            save_processed_image(marked_image)  # Save the image to be displayed
+            save_processed_image(marked_image)
             
-            # Return the results as JSON to be used on a separate window
             result = {
                 "altitude": altitude,
                 "required_thrust": required_thrust,
@@ -152,6 +151,8 @@ def index():
 # Serve the processed image
 @app.route('/processed_image')
 def serve_image():
+    if not os.path.isfile(PROCESSED_IMAGE_PATH):
+        abort(404, description="Processed image not found.")
     return send_file(PROCESSED_IMAGE_PATH, mimetype='image/png')
 
 # Define a result route to display the altitude, thrust information, and image
@@ -160,6 +161,4 @@ def result_page():
     return render_template('result.html')
 
 if __name__ == '__main__':
-    # Ensure the static directory exists
-    os.makedirs(os.path.dirname(PROCESSED_IMAGE_PATH), exist_ok=True)
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=80, debug=True)  # Use port 80 for Render
